@@ -1,9 +1,9 @@
 import './scss/styles.scss';
-import {Cart} from './classes/Models/cart'
-import {Product} from './classes/Models/product'
-import {Customer} from './classes/Models/customer'
+import {Cart} from './components/Models/cart'
+import {Product} from './components/Models/product'
+import {Customer} from './components/Models/customer'
 import {apiProducts} from './utils/data.ts'
-import {appApi} from "./classes/API/appAPI.ts";
+import {appApi} from "./components/API/appAPI.ts";
 import {API_URL} from "./utils/constants.ts";
 import {Api} from "./components/base/Api.ts";
 import {IProductResponse} from "./types";
@@ -12,7 +12,7 @@ import {IProductResponse} from "./types";
 //Product
 console.log('_______Product_______')
 const products = new Product()
-products.setProducts(apiProducts.items); 
+products.setProducts(apiProducts.items);
 console.log(`Экземпляр класса:`)
 console.log(products)
 const currentProduct = products.getProductById('854cef69-976d-4c2a-a18c-2aa45046c390')
@@ -83,74 +83,19 @@ console.log(customer.validate())
 console.log('_________API____________')
 const baseApi = new Api(API_URL)
 const api = new appApi(baseApi)
-const res: IProductResponse = await api.get()
+const products1 = new Product()
 
-console.log('_______Product_______')
-const product1 = new Product()
-product1.setProducts(res.items);
-console.log(`Экземпляр класса:`)
-console.log(product1)
-const currentProduct1 = product1.getProductById('854cef69-976d-4c2a-a18c-2aa45046c390')
-console.log('Получение текущего товара: ')
-console.log(product1.getCurrentProduct())
-product1.setCurrentProduct(currentProduct1)
-console.log('Получение текущего товара, после назначения текущего товара: ')
-console.log(product1.getCurrentProduct())
-const productsArray1 = product1.getProductsArray()
-console.log('Получение списка товара: ')
-console.log(productsArray1)
+async function init() {
+    try {
+        const data: IProductResponse = await api.getProduct()
+        products1.setProducts(data.items)
+        console.log('Список товаров: ')
+        console.log(products1.getProductsArray())
+    } catch (error) {
+        console.error(error)
+    }
+}
 
-//Cart
-console.log('_______Cart_______')
-const cart1 = new Cart()
-console.log(`Экземпляр класса:`)
-console.log(cart1)
-cart1.pushProductInCart(product1.getProductById('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'))
-cart1.pushProductInCart(product1.getProductById('b06cde61-912f-4663-9751-09956c0eed67'))
-console.log('Список корзины: ')
-console.log(cart1.getCartProductsArray())
-console.log('Сумма корзины: ')
-console.log(cart1.getCartPrices())
-console.log('Размер корзины: ')
-console.log(cart1.getCartSize())
-console.log('Удаление товара c101ab44-ed99-4a54-990d-47aa2bb4e7d9')
-cart1.deleteProductFromCart('854cef69-976d-4c2a-a18c-2aa45046c390')
-cart1.deleteProductFromCart('c101ab44-ed99-4a54-990d-47aa2bb4e7d9')
-console.log('Список корзины: ')
-console.log(cart1.getCartProductsArray())
-console.log('Сумма корзины: ')
-console.log(cart1.getCartPrices())
-console.log('Размер корзины: ')
-console.log(cart1.getCartSize())
-console.log('Проверка наличия в списке: ')
-console.log(cart1.productInCart('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'))
-console.log(cart1.productInCart('b06cde61-912f-4663-9751-09956c0eed67'))
-console.log('Очистка корзины')
-cart1.resetCart()
-console.log('Список корзины: ')
-console.log(cart1.getCartProductsArray())
-console.log('Сумма корзины: ')
-console.log(cart1.getCartPrices())
-console.log('Размер корзины: ')
-console.log(cart1.getCartSize())
 
-//Customer
-console.log('____________Customer___________')
-const customer1 = new Customer()
-console.log('Экземпляр класса: ')
-console.log(customer1)
-console.log('Данные покупателя: ')
-console.log(customer1.getCustomer())
-customer1.setAddress('Minsk')
-customer1.setEmail('Ilya@gmail.com')
-customer1.setPayment('card')
-customer1.setPhone('+375 44 999 99 99')
-console.log('Данные покупателя после заполнения: ')
-console.log(customer1.getCustomer())
-console.log('Валидатор: ')
-console.log(customer1.validate())
-customer1.clearCustomer()
-console.log('Данные покупателя после сброса: ')
-console.log(customer1.getCustomer())
-console.log('Валидатор: ')
-console.log(customer1.validate())
+
+init()

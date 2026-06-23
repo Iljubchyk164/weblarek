@@ -1,17 +1,14 @@
-import {IProduct} from '../../types/index.ts' ;
+import {IProduct} from '../../types' ;
 
 export class Product {
   private productsArray: IProduct[] = [];
   private currentProduct: IProduct | null = null;
 
   setProducts(products: IProduct[]) {
-    if (!Array.isArray(products)) {
-      throw new Error('Не массив');
-    }
     this.productsArray = products;
   }
 
-  setCurrentProduct(currentProduct: IProduct) {
+  setCurrentProduct(currentProduct: IProduct | null) {
     this.currentProduct = currentProduct
   }
 
@@ -23,12 +20,13 @@ export class Product {
     return this.currentProduct
   }
 
-  getProductById(id: string): IProduct {
+  getProductById(id: string): IProduct | null {
     const result = this.productsArray.find((element: IProduct) => {
       return element.id === id
     });
     if (!result) {
-      throw new Error('Товар не найден')
+      console.log('Товар не найден')
+      return null
     }
     return result
   } 

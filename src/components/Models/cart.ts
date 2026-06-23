@@ -1,4 +1,4 @@
-import {IProduct} from '../../types/index.ts' ;
+import {IProduct} from '../../types' ;
 
 export class Cart {
   private cartProductsArray = new Map<string, IProduct>();
@@ -7,8 +7,10 @@ export class Cart {
     return Array.from(this.cartProductsArray.values())
   }
 
-  pushProductInCart(product: IProduct) {
-    this.cartProductsArray.set(product.id, product)
+  pushProductInCart(product: IProduct | null) {
+    if (product) {
+      this.cartProductsArray.set(product.id, product)
+    }
   }
 
   deleteProductFromCart(id: string) {
@@ -20,13 +22,9 @@ export class Cart {
   }
 
   getCartPrices(): number {
-    let sum = 0;
-    this.cartProductsArray.forEach((elem: IProduct) => {
-      if (elem.price) {
-        sum += elem.price
-      }
-    })
-    return sum;
+    return Array.from(this.cartProductsArray.values()).reduce((sum: number, elem: IProduct) => {
+        return sum + (elem.price || 0)
+    }, 0)
   }
 
   getCartSize(): number{
@@ -34,9 +32,6 @@ export class Cart {
   }
 
   productInCart(id: string): boolean{
-    if (this.cartProductsArray.has(id)) {
-      return true
-    }
-    return false
+    return this.cartProductsArray.has(id)
   }
 }

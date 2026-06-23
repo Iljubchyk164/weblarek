@@ -1,11 +1,11 @@
-import {IBuyer, TPayment} from '../../types/index.ts' ;
+import {IBuyer, TBuyerErrors, TPayment} from '../../types' ;
 
-export class Customer implements IBuyer{
+export class Customer{
 
-    payment: TPayment = '';
-    email: string = '';
-    phone: string = '';
-    address: string = '';
+    private payment: TPayment = '';
+    private email: string = '';
+    private phone: string = '';
+    private address: string = '';
 
     setPayment(payment: TPayment) {
       this.payment = payment
@@ -39,21 +39,21 @@ export class Customer implements IBuyer{
       this.address = ''
     }
 
-    validate(): Record<string, string> | null {
-        const CustomerErrors: Record<string, string> = {};
+    validate(): TBuyerErrors {
+        const customerErrors: TBuyerErrors = {};
         if (!this.payment) {
-            CustomerErrors.payment = 'Не выбран вид оплаты';
+            customerErrors.payment = 'Не выбран вид оплаты';
         }
         if (!this.address || this.address.trim() === '') {
-            CustomerErrors.address = 'Укажите адрес доставки';
+            customerErrors.address = 'Укажите адрес доставки';
         }
         if (!this.email || this.email.trim() === '') {
-            CustomerErrors.email = 'Укажите email';
+            customerErrors.email = 'Укажите email';
         }
         if (!this.phone || this.phone.trim() === '') {
-            CustomerErrors.phone = 'Укажите телефон';
+            customerErrors.phone = 'Укажите телефон';
         }
 
-        return Object.keys(CustomerErrors).length > 0 ? CustomerErrors : null;
+        return customerErrors;
     }
 }
