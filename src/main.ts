@@ -7,13 +7,15 @@ import {appApi} from "./components/API/appAPI.ts";
 import {API_URL} from "./utils/constants.ts";
 import {Api} from "./components/base/Api.ts";
 import {IProductResponse} from "./types";
+import {CardCatalog} from "./components/view/Card/CardCatalog/CardCatalog.ts";
+import {GalleryView} from "./components/view/GalleryView.ts";
 
 
 //Product
 console.log('_______Product_______')
 const products = new Product()
 products.setProducts(apiProducts.items);
-console.log(`Экземпляр класса:`)
+/*console.log(`Экземпляр класса:`)
 console.log(products)
 const currentProduct = products.getProductById('854cef69-976d-4c2a-a18c-2aa45046c390')
 console.log('Получение текущего товара: ')
@@ -23,7 +25,9 @@ console.log('Получение текущего товара, после наз
 console.log(products.getCurrentProduct())
 const productsArray = products.getProductsArray()
 console.log('Получение списка товара: ')
-console.log(productsArray)
+console.log(productsArray)*/
+
+
 
 //Cart
 console.log('_______Cart_______')
@@ -89,8 +93,31 @@ async function init() {
     try {
         const data: IProductResponse = await api.getProduct()
         products1.setProducts(data.items)
-        console.log('Список товаров: ')
-        console.log(products1.getProductsArray())
+
+
+        const catalog = document.getElementById('card-catalog') as HTMLTemplateElement;
+        const card = catalog.content.cloneNode(true) as HTMLElement
+        const cardCatalog = new CardCatalog(card);
+        const gallery = document.querySelector('main') as HTMLElement;
+        const galleryView = new GalleryView(gallery);
+        const productsArray = products1.getProductsArray()
+        const array: HTMLElement[] = productsArray.map(product => {
+            cardCatalog.setContent(product)
+            const catalog = document.getElementById('card-catalog') as HTMLTemplateElement;
+            return catalog.content.cloneNode(true) as HTMLElement
+        })
+        console.log("dadadadadada")
+        console.log(array)
+
+        const uList = document.createElement('ul')
+        array.forEach(item => {
+            const list = document.createElement('li')
+            list.append(item)
+            uList.append(item)
+        })
+        console.log(uList)
+        gallery.append(uList)
+        galleryView.setCatalog(array);
     } catch (error) {
         console.error(error)
     }
