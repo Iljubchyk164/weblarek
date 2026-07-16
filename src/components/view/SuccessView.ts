@@ -14,12 +14,12 @@ export class SuccessView extends Component<ISuccessData> {
 
     constructor(container: HTMLElement, event: EventEmitter) {
         super(container);
-        this.priceDescription = ensureElement<HTMLElement>('.order-success__description', this.container);
+        this.priceDescription = ensureElement<HTMLParagraphElement>('.order-success__description', this.container);
         this.closeButton = ensureElement<HTMLButtonElement>('.order-success__close', this.container);
         this.event = event;
 
         this.closeButton.addEventListener('click', () => {
-            this.event.emit('close modal');
+            this.event.emit('modal:close');
         })
     }
 

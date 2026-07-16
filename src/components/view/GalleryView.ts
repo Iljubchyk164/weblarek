@@ -13,10 +13,16 @@ export class GalleryView extends Component<IGalleryData> {
 
     constructor(container: HTMLElement) {
         super(container);
-        this.catalogElement = ensureElement<HTMLElement>('main')
+        this.catalogElement = ensureElement<HTMLElement>('.gallery')
     }
 
-    setCatalog(items: HTMLElement[]) {
-        this.catalogElement.append(...items)
+    setCatalog(items?: HTMLElement[]) {
+        if (items) {
+            this.catalogElement.innerHTML = "";
+            this.catalogElement.append(...items)
+        } else {
+            this.catalogElement.innerHTML = "";
+        }
+
     }
 }

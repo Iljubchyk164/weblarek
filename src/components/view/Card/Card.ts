@@ -4,6 +4,7 @@ import {ensureElement} from "../../../utils/utils.ts";
 export interface ICardData {
     title: string;
     price: number | null;
+    id: string;
 }
 
 export abstract class Card<T extends ICardData> extends Component<T> {
@@ -21,6 +22,8 @@ export abstract class Card<T extends ICardData> extends Component<T> {
 
     protected setContent(data: T) {
         this.cardTitle.textContent = data.title;
-        this.cardPrice.textContent = `${data.price ? data.price : 0} синапсов`
+        this.cardPrice.textContent = data.price ?
+            `${data.price} синапсов`
+            : `Бесценно`
     }
 }

@@ -21,7 +21,7 @@ export class HeaderView extends Component<IHeaderData> {
 
 
         this.headerCartButton.addEventListener('click', () => {
-            this.event.emit('cart open')
+            this.event.emit('cart:open')
         })
     }
 

@@ -1,5 +1,5 @@
 import {ensureElement} from "../../../../utils/utils.ts";
-import {Form, IValidate} from "../FormView.ts";
+import {FormView, IValidate} from "../FormView.ts";
 
 
 interface IValidateContacts extends IValidate {
@@ -7,7 +7,7 @@ interface IValidateContacts extends IValidate {
     phone: string;
 }
 
-export class FormContacts extends Form<IValidateContacts> {
+export class FormContacts extends FormView<IValidateContacts> {
 
     private formEmail: HTMLInputElement;
     private formPhone: HTMLInputElement;

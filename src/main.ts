@@ -1,128 +1,102 @@
 import './scss/styles.scss';
-import {Cart} from './components/Models/cart'
-import {Product} from './components/Models/product'
-import {Customer} from './components/Models/customer'
-import {apiProducts} from './utils/data.ts'
+//import {Cart} from './components/Models/cart'
+//import {Product} from './components/Models/product'
+//import {Customer} from './components/Models/customer'
 import {appApi} from "./components/API/appAPI.ts";
 import {API_URL} from "./utils/constants.ts";
 import {Api} from "./components/base/Api.ts";
-import {IProductResponse} from "./types";
-import {CardCatalog} from "./components/view/Card/CardCatalog/CardCatalog.ts";
+//import {IProductResponse} from "./types";
+//import {CardCatalog} from "./components/view/Card/CardCatalog/CardCatalog.ts";
 import {GalleryView} from "./components/view/GalleryView.ts";
+import {ensureElement} from "./utils/utils.ts";
+import {EventEmitter} from "./components/base/Events.ts";
+import {PresenterGalleryCatalog} from "./components/Presenters/PresenterGalleryCatalog.ts";
+import {ModalView} from "./components/view/ModalView.ts";
+import {Product} from "./components/Models/product.ts";
+import {Cart} from "./components/Models/cart.ts";
+import {Customer} from "./components/Models/customer.ts";
+import {HeaderView} from "./components/view/HeaderView.ts";
+import {SuccessView} from "./components/view/SuccessView.ts";
+import {CartView} from "./components/view/CartView.ts";
+import {CardCart} from "./components/view/Card/CardCart/CardCart.ts";
+import {CardCatalog} from "./components/view/Card/CardCatalog/CardCatalog.ts";
+import {CardPreview} from "./components/view/Card/CardPreview/CardPreview.ts";
+import {FormContacts} from "./components/view/Form/FormContacts/FormContacts.ts";
+import {FormOrder} from "./components/view/Form/FormOrder/FormOrder.ts";
 
 
-//Product
-console.log('_______Product_______')
-const products = new Product()
-products.setProducts(apiProducts.items);
-/*console.log(`Экземпляр класса:`)
-console.log(products)
-const currentProduct = products.getProductById('854cef69-976d-4c2a-a18c-2aa45046c390')
-console.log('Получение текущего товара: ')
-console.log(products.getCurrentProduct())
-products.setCurrentProduct(currentProduct)
-console.log('Получение текущего товара, после назначения текущего товара: ')
-console.log(products.getCurrentProduct())
-const productsArray = products.getProductsArray()
-console.log('Получение списка товара: ')
-console.log(productsArray)*/
-
-
-
-//Cart
-console.log('_______Cart_______')
-const cart = new Cart()
-console.log(`Экземпляр класса:`)
-console.log(cart)
-cart.pushProductInCart(products.getProductById('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'))
-cart.pushProductInCart(products.getProductById('b06cde61-912f-4663-9751-09956c0eed67'))
-console.log('Список корзины: ')
-console.log(cart.getCartProductsArray())
-console.log('Сумма корзины: ')
-console.log(cart.getCartPrices())
-console.log('Размер корзины: ')
-console.log(cart.getCartSize())
-console.log('Удаление товара c101ab44-ed99-4a54-990d-47aa2bb4e7d9')
-cart.deleteProductFromCart('854cef69-976d-4c2a-a18c-2aa45046c390')
-cart.deleteProductFromCart('c101ab44-ed99-4a54-990d-47aa2bb4e7d9')
-console.log('Список корзины: ')
-console.log(cart.getCartProductsArray())
-console.log('Сумма корзины: ')
-console.log(cart.getCartPrices())
-console.log('Размер корзины: ')
-console.log(cart.getCartSize())
-console.log('Проверка наличия в списке: ')
-console.log(cart.productInCart('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'))
-console.log(cart.productInCart('b06cde61-912f-4663-9751-09956c0eed67'))
-console.log('Очистка корзины')
-cart.resetCart()
-console.log('Список корзины: ')
-console.log(cart.getCartProductsArray())
-console.log('Сумма корзины: ')
-console.log(cart.getCartPrices())
-console.log('Размер корзины: ')
-console.log(cart.getCartSize())
-
-//Customer
-console.log('____________Customer___________')
-const customer = new Customer()
-console.log('Экземпляр класса: ')
-console.log(customer)
-console.log('Данные покупателя: ')
-console.log(customer.getCustomer())
-customer.setAddress('Minsk')
-customer.setEmail('Ilya@gmail.com')
-customer.setPayment('card')
-customer.setPhone('+375 44 999 99 99')
-console.log('Данные покупателя после заполнения: ')
-console.log(customer.getCustomer())
-console.log('Валидатор: ')
-console.log(customer.validate())
-customer.clearCustomer()
-console.log('Данные покупателя после сброса: ')
-console.log(customer.getCustomer())
-console.log('Валидатор: ')
-console.log(customer.validate())
 
 console.log('_________API____________')
 const baseApi = new Api(API_URL)
 const api = new appApi(baseApi)
-const products1 = new Product()
 
-async function init() {
-    try {
-        const data: IProductResponse = await api.getProduct()
-        products1.setProducts(data.items)
+const event = new EventEmitter()
+
+const productModel = new Product();
+const cartModel = new Cart()
+const customerModel = new Customer();
+
+const cardTemplateCatalog = document.getElementById('card-catalog') as HTMLTemplateElement;
+const successTemplate = document.getElementById('success') as HTMLTemplateElement;
+const cardTemplatePreview = document.getElementById('card-preview') as HTMLTemplateElement;
+const cardTemplateCart = document.getElementById('card-basket') as HTMLTemplateElement;
+const cartTemplate = document.getElementById('basket') as HTMLTemplateElement;
+const orderTemplate = document.getElementById('order') as HTMLTemplateElement;
+const contactsTemplate = document.getElementById('contacts') as HTMLTemplateElement;
 
 
-        const catalog = document.getElementById('card-catalog') as HTMLTemplateElement;
-        const card = catalog.content.cloneNode(true) as HTMLElement
-        const cardCatalog = new CardCatalog(card);
-        const gallery = document.querySelector('main') as HTMLElement;
-        const galleryView = new GalleryView(gallery);
-        const productsArray = products1.getProductsArray()
-        const array: HTMLElement[] = productsArray.map(product => {
-            cardCatalog.setContent(product)
-            const catalog = document.getElementById('card-catalog') as HTMLTemplateElement;
-            return catalog.content.cloneNode(true) as HTMLElement
-        })
-        console.log("dadadadadada")
-        console.log(array)
+const header = ensureElement<HTMLElement>('.header');
+const gallery = ensureElement<HTMLElement>('.gallery');
+const modal = ensureElement<HTMLElement>('.modal');
 
-        const uList = document.createElement('ul')
-        array.forEach(item => {
-            const list = document.createElement('li')
-            list.append(item)
-            uList.append(item)
-        })
-        console.log(uList)
-        gallery.append(uList)
-        galleryView.setCatalog(array);
-    } catch (error) {
-        console.error(error)
-    }
-}
+
+const galleryView = new GalleryView(gallery)
+const modalView = new ModalView(modal, event)
+const headerView = new HeaderView(header, event)
+const successView = new SuccessView(successTemplate, event)
+const cartView = new CartView(cartTemplate, event)
+const cardCartView = new CardCart(cardTemplateCart)
+const cardCatalogView = new CardCatalog(cardTemplateCatalog, event)
+const cardPreviewView = new CardPreview(cardTemplatePreview, event)
+const formContacts = new FormContacts(contactsTemplate)
+const formOrder = new FormOrder(orderTemplate)
 
 
 
-init()
+
+const presenterGallery = new PresenterGalleryCatalog(
+    api,
+    galleryView,
+    modalView,
+    headerView,
+    successView,
+    cartView,
+    cardCartView,
+    cardCatalogView,
+    cardPreviewView,
+    formContacts,
+    formOrder,
+    cardTemplateCatalog,
+    successTemplate,
+    cardTemplatePreview,
+    cardTemplateCart,
+    cartTemplate,
+    orderTemplate,
+    contactsTemplate,
+    event,
+    modal,
+    header,
+    gallery,
+    cartModel,
+    productModel,
+    customerModel,
+)
+
+presenterGallery.init()
+event.on('modal:close', () => {
+    modalView.closeModal()
+})
+
+/*this.event.on('card:select', (data: { id: string}) => {
+    this.onCardClick(data.id);
+});*/

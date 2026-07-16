@@ -1,5 +1,5 @@
 import {ensureElement} from "../../../../utils/utils.ts";
-import {Form, IValidate} from "../FormView.ts";
+import {FormView, IValidate} from "../FormView.ts";
 import {TPayment} from "../../../../types";
 
 
@@ -8,7 +8,7 @@ interface IValidateOrder extends IValidate {
     payment: TPayment;
 }
 
-export class FormOrder extends Form<IValidateOrder> {
+export class FormOrder extends FormView<IValidateOrder> {
 
     private formAddress: HTMLInputElement;
     private paymentButtons: HTMLElement;
