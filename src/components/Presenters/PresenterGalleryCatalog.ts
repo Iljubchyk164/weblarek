@@ -52,30 +52,39 @@ export class PresenterGalleryCatalog implements IGalleryPresenter {
 
     constructor(
         api: appApi,
-        galleryView: GalleryView,
-        modalView :ModalView,
-        headerView :HeaderView,
-        successView: SuccessView,
-        cartView: CartView,
-        cardCartView: CardCart,
-        cardCatalogView: CardCatalog,
-        cardPreviewView: CardPreview,
-        formContactsView: FormContacts,
-        formOrderView: FormOrder,
-        cardTemplateCatalog: HTMLTemplateElement,
-        successTemplate: HTMLTemplateElement,
-        cardTemplatePreview: HTMLTemplateElement,
-        cardTemplateCart: HTMLTemplateElement,
-        cartTemplate: HTMLTemplateElement,
-        orderTemplate: HTMLTemplateElement,
-        contactsTemplate: HTMLTemplateElement,
+        views: {
+            galleryView: GalleryView,
+            modalView :ModalView,
+            headerView :HeaderView,
+            successView: SuccessView,
+            cartView: CartView,
+            cardCartView: CardCart,
+            cardCatalogView: CardCatalog,
+            cardPreviewView: CardPreview,
+            formContactsView: FormContacts,
+            formOrderView: FormOrder,
+        }
+        templates:{
+            cardTemplateCatalog: HTMLTemplateElement,
+            successTemplate: HTMLTemplateElement,
+            cardTemplatePreview: HTMLTemplateElement,
+            cardTemplateCart: HTMLTemplateElement,
+            cartTemplate: HTMLTemplateElement,
+            orderTemplate: HTMLTemplateElement,
+            contactsTemplate: HTMLTemplateElement,
+        }
         event: EventEmitter,
-        modal: HTMLElement,
-        header: HTMLElement,
-        gallery: HTMLElement,
+        containers: {
+            modal: HTMLElement,
+            header: HTMLElement,
+            gallery: HTMLElement,
+    }
+        models: {
         cartModel: Cart,
         productModel: Product,
         customerModel: Customer,
+    }
+
     ) {
         this.api = api;
         this.galleryView = galleryView;

@@ -36,60 +36,52 @@ const productModel = new Product();
 const cartModel = new Cart()
 const customerModel = new Customer();
 
-const cardTemplateCatalog = document.getElementById('card-catalog') as HTMLTemplateElement;
-const successTemplate = document.getElementById('success') as HTMLTemplateElement;
-const cardTemplatePreview = document.getElementById('card-preview') as HTMLTemplateElement;
-const cardTemplateCart = document.getElementById('card-basket') as HTMLTemplateElement;
-const cartTemplate = document.getElementById('basket') as HTMLTemplateElement;
-const orderTemplate = document.getElementById('order') as HTMLTemplateElement;
-const contactsTemplate = document.getElementById('contacts') as HTMLTemplateElement;
+const templates = {
+    cardTemplateCatalog: document.getElementById('card-catalog') as HTMLTemplateElement,
+    successTemplate: document.getElementById('success') as HTMLTemplateElement,
+    cardTemplatePreview: document.getElementById('card-preview') as HTMLTemplateElement,
+    cardTemplateCart: document.getElementById('card-basket') as HTMLTemplateElement,
+    cartTemplate: document.getElementById('basket') as HTMLTemplateElement,
+    orderTemplate: document.getElementById('order') as HTMLTemplateElement,
+    contactsTemplate: document.getElementById('contacts') as HTMLTemplateElement,
+}
 
 
-const header = ensureElement<HTMLElement>('.header');
-const gallery = ensureElement<HTMLElement>('.gallery');
-const modal = ensureElement<HTMLElement>('.modal');
+const containers = {
+    header: ensureElement<HTMLElement>('.header'),
+    gallery: ensureElement<HTMLElement>('.gallery'),
+    modal: ensureElement<HTMLElement>('.modal'),
+}
 
 
-const galleryView = new GalleryView(gallery)
-const modalView = new ModalView(modal, event)
-const headerView = new HeaderView(header, event)
-const successView = new SuccessView(successTemplate, event)
-const cartView = new CartView(cartTemplate, event)
-const cardCartView = new CardCart(cardTemplateCart)
-const cardCatalogView = new CardCatalog(cardTemplateCatalog, event)
-const cardPreviewView = new CardPreview(cardTemplatePreview, event)
-const formContacts = new FormContacts(contactsTemplate)
-const formOrder = new FormOrder(orderTemplate)
+const views = {
+    galleryView: new GalleryView(containers.gallery),
+    modalView: new ModalView(containers.modal, event),
+    headerView: new HeaderView(containers.header, event),
+    successView: new SuccessView(templates.successTemplate, event),
+    cartView: new CartView(templates.cartTemplate, event),
+    cardCartView: new CardCart(templates.cardTemplateCart),
+    cardCatalogView: new CardCatalog(templates.cardTemplateCatalog, event),
+    cardPreviewView: new CardPreview(templates.cardTemplatePreview, event),
+    formContacts: new FormContacts(templates.contactsTemplate),
+    formOrder: new FormOrder(templates.orderTemplate),
+}
+
 
 
 
 
 const presenterGallery = new PresenterGalleryCatalog(
     api,
-    galleryView,
-    modalView,
-    headerView,
-    successView,
-    cartView,
-    cardCartView,
-    cardCatalogView,
-    cardPreviewView,
-    formContacts,
-    formOrder,
-    cardTemplateCatalog,
-    successTemplate,
-    cardTemplatePreview,
-    cardTemplateCart,
-    cartTemplate,
-    orderTemplate,
-    contactsTemplate,
+    views,
+    templates
     event,
-    modal,
-    header,
-    gallery,
-    cartModel,
-    productModel,
-    customerModel,
+    containers,
+    models: {
+        cartModel: cartModel,
+        productModel: productModel,
+        customerModel: customerModel,
+    }
 )
 
 presenterGallery.init()
