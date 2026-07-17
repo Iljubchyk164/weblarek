@@ -36,6 +36,11 @@ export class ModalView extends Component<IModalData> {
     }
 
     closeModal() {
+        this.modalContentContainer.innerHTML = '';
         this.container.classList.remove('modal_active');
+    }
+
+    openModal() {
+        this.container.classList.add('modal_active');
     }
 }

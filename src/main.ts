@@ -8,9 +8,9 @@ import {Api} from "./components/base/Api.ts";
 //import {IProductResponse} from "./types";
 //import {CardCatalog} from "./components/view/Card/CardCatalog/CardCatalog.ts";
 import {GalleryView} from "./components/view/GalleryView.ts";
-import {ensureElement} from "./utils/utils.ts";
+import {cloneTemplate, ensureElement} from "./utils/utils.ts";
 import {EventEmitter} from "./components/base/Events.ts";
-import {PresenterGalleryCatalog} from "./components/Presenters/PresenterGalleryCatalog.ts";
+import {Presenter} from "./components/Presenters/Presenter.ts";
 import {ModalView} from "./components/view/ModalView.ts";
 import {Product} from "./components/Models/product.ts";
 import {Cart} from "./components/Models/cart.ts";
@@ -37,13 +37,13 @@ const cartModel = new Cart()
 const customerModel = new Customer();
 
 const templates = {
-    cardTemplateCatalog: document.getElementById('card-catalog') as HTMLTemplateElement,
-    successTemplate: document.getElementById('success') as HTMLTemplateElement,
-    cardTemplatePreview: document.getElementById('card-preview') as HTMLTemplateElement,
-    cardTemplateCart: document.getElementById('card-basket') as HTMLTemplateElement,
-    cartTemplate: document.getElementById('basket') as HTMLTemplateElement,
-    orderTemplate: document.getElementById('order') as HTMLTemplateElement,
-    contactsTemplate: document.getElementById('contacts') as HTMLTemplateElement,
+    cardCatalog: document.getElementById('card-catalog') as HTMLTemplateElement,
+    success: document.getElementById('success') as HTMLTemplateElement,
+    cardPreview: document.getElementById('card-preview') as HTMLTemplateElement,
+    cardCart: document.getElementById('card-basket') as HTMLTemplateElement,
+    cart: document.getElementById('basket') as HTMLTemplateElement,
+    order: document.getElementById('order') as HTMLTemplateElement,
+    contacts: document.getElementById('contacts') as HTMLTemplateElement,
 }
 
 
@@ -55,39 +55,40 @@ const containers = {
 
 
 const views = {
-    galleryView: new GalleryView(containers.gallery),
-    modalView: new ModalView(containers.modal, event),
-    headerView: new HeaderView(containers.header, event),
-    successView: new SuccessView(templates.successTemplate, event),
-    cartView: new CartView(templates.cartTemplate, event),
-    cardCartView: new CardCart(templates.cardTemplateCart),
-    cardCatalogView: new CardCatalog(templates.cardTemplateCatalog, event),
-    cardPreviewView: new CardPreview(templates.cardTemplatePreview, event),
-    formContacts: new FormContacts(templates.contactsTemplate),
-    formOrder: new FormOrder(templates.orderTemplate),
+    gallery: new GalleryView(containers.gallery),
+    modal: new ModalView(containers.modal, event),
+    header: new HeaderView(containers.header, event),
+    success: new SuccessView(cloneTemplate<HTMLElement>(templates.success), event),
+    cart: new CartView(cloneTemplate<HTMLElement>(templates.cart), event),
+    cardCart: new CardCart(cloneTemplate<HTMLElement>(templates.cardCart), event),
+    cardCatalog: new CardCatalog(cloneTemplate<HTMLElement>(templates.cardCatalog), event),
+    cardPreview: new CardPreview(cloneTemplate<HTMLElement>(templates.cardPreview), event),
+    formContacts: new FormContacts(cloneTemplate<HTMLElement>(templates.contacts)),
+    formOrder: new FormOrder(cloneTemplate<HTMLElement>(templates.order))
+}
+
+const models = {
+    product: productModel,
+    cart: cartModel,
+    customer: customerModel,
 }
 
 
 
 
-
-const presenterGallery = new PresenterGalleryCatalog(
-    api,
-    views,
-    templates
+const presenterGallery = new Presenter(
+    {api,
     event,
-    containers,
-    models: {
-        cartModel: cartModel,
-        productModel: productModel,
-        customerModel: customerModel,
-    }
+    models,
+    views,
+    templates,
+    containers,}
 )
 
 presenterGallery.init()
-event.on('modal:close', () => {
+/*event.on('modal:close', () => {
     modalView.closeModal()
-})
+})*/
 
 /*this.event.on('card:select', (data: { id: string}) => {
     this.onCardClick(data.id);

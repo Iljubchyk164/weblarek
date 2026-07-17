@@ -16,7 +16,7 @@ export class CartView extends Component<ICartData> {
 
     constructor(container: HTMLElement, event: EventEmitter) {
         super(container);
-        this.cartButton = ensureElement<HTMLButtonElement>('.button basket__button', this.container);
+        this.cartButton = ensureElement<HTMLButtonElement>('.basket__button', this.container);
         this.cartPrice = ensureElement<HTMLSpanElement>('.basket__price', this.container)
         this.cartList = ensureElement<HTMLUListElement>('.basket__list', this.container)
         this.event = event;
@@ -25,6 +25,7 @@ export class CartView extends Component<ICartData> {
             this.event.emit('order')
         })
 
+        this.disabledButton(true)
     }
 
     setPrice(value: number) {
@@ -32,6 +33,12 @@ export class CartView extends Component<ICartData> {
     }
 
     setList(item: HTMLElement) {
+        /*const listItem = document.createElement("li");
+        listItem.append(item)*/
         this.cartList.append(item);
+    }
+
+    disabledButton(bool: boolean) {
+        this.cartButton.disabled = bool
     }
 }
