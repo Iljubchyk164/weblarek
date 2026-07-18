@@ -28,7 +28,6 @@ export class CardPreview extends Card<ICardPreviewData> {
 
         this.cardButton.addEventListener('click', () => {
             this.event.emit('addInCart', {id: this.cardId});
-            this.disabledButton(true)
         })
     }
 
@@ -42,5 +41,17 @@ export class CardPreview extends Card<ICardPreviewData> {
 
     disabledButton(bool: boolean) {
         this.cardButton.disabled = bool;
+        if (bool) {
+            this.cardButton.textContent = 'Недоступно';
+        }
+    }
+
+    haveInCart(bool: boolean) {
+        if (bool) {
+            this.cardButton.textContent = 'Удалить из корзины';
+        } else {
+            this.cardButton.textContent = 'В корзину'
+        }
+
     }
 }

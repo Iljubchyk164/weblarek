@@ -1,12 +1,7 @@
 import './scss/styles.scss';
-//import {Cart} from './components/Models/cart'
-//import {Product} from './components/Models/product'
-//import {Customer} from './components/Models/customer'
 import {appApi} from "./components/API/appAPI.ts";
 import {API_URL} from "./utils/constants.ts";
 import {Api} from "./components/base/Api.ts";
-//import {IProductResponse} from "./types";
-//import {CardCatalog} from "./components/view/Card/CardCatalog/CardCatalog.ts";
 import {GalleryView} from "./components/view/GalleryView.ts";
 import {cloneTemplate, ensureElement} from "./utils/utils.ts";
 import {EventEmitter} from "./components/base/Events.ts";
@@ -26,7 +21,6 @@ import {FormOrder} from "./components/view/Form/FormOrder/FormOrder.ts";
 
 
 
-console.log('_________API____________')
 const baseApi = new Api(API_URL)
 const api = new appApi(baseApi)
 
@@ -63,8 +57,8 @@ const views = {
     cardCart: new CardCart(cloneTemplate<HTMLElement>(templates.cardCart), event),
     cardCatalog: new CardCatalog(cloneTemplate<HTMLElement>(templates.cardCatalog), event),
     cardPreview: new CardPreview(cloneTemplate<HTMLElement>(templates.cardPreview), event),
-    formContacts: new FormContacts(cloneTemplate<HTMLElement>(templates.contacts)),
-    formOrder: new FormOrder(cloneTemplate<HTMLElement>(templates.order))
+    formContacts: new FormContacts(cloneTemplate<HTMLElement>(templates.contacts), event),
+    formOrder: new FormOrder(cloneTemplate<HTMLElement>(templates.order), event),
 }
 
 const models = {
@@ -86,10 +80,3 @@ const presenterGallery = new Presenter(
 )
 
 presenterGallery.init()
-/*event.on('modal:close', () => {
-    modalView.closeModal()
-})*/
-
-/*this.event.on('card:select', (data: { id: string}) => {
-    this.onCardClick(data.id);
-});*/

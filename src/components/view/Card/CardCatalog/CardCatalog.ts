@@ -1,7 +1,7 @@
 import {ensureElement} from "../../../../utils/utils.ts";
 import {Card, ICardData} from "../Card.ts";
 import {EventEmitter} from "../../../base/Events.ts";
-import {CDN_URL} from "../../../../utils/constants.ts";
+import {categoryMap, CDN_URL} from "../../../../utils/constants.ts";
 
 interface ICardCatalogData extends ICardData {
     category: string;
@@ -34,6 +34,17 @@ export class CardCatalog extends Card<ICardCatalogData> {
     setContent(data: ICardCatalogData) {
         super.setContent(data);
         this.cardCategory.textContent = data.category;
+        this.cardCategory.classList.remove(
+            'card__category_soft',
+            'card__category_hard',
+            'card__category_button',
+            'card__category_additional',
+            'card__category_other'
+        );
+        const categoryClass = categoryMap[data.category as keyof typeof categoryMap];
+        if (categoryClass) {
+            this.cardCategory.classList.add(categoryClass);
+        }
         this.setImage(this.cardImage, `${CDN_URL}${data.image}`, data.title);
         this.cardId = data.id;
     }

@@ -39,7 +39,7 @@ export class Customer{
       this.address = ''
     }
 
-    validate(): TBuyerErrors {
+    validateOrder(): TBuyerErrors {
         const customerErrors: TBuyerErrors = {};
         if (!this.payment) {
             customerErrors.payment = 'Не выбран вид оплаты';
@@ -47,6 +47,12 @@ export class Customer{
         if (!this.address || this.address.trim() === '') {
             customerErrors.address = 'Укажите адрес доставки';
         }
+
+        return customerErrors;
+    }
+
+    validateContacts(): TBuyerErrors {
+        const customerErrors: TBuyerErrors = {};
         if (!this.email || this.email.trim() === '') {
             customerErrors.email = 'Укажите email';
         }
@@ -54,6 +60,14 @@ export class Customer{
             customerErrors.phone = 'Укажите телефон';
         }
 
+        return customerErrors;
+    }
+
+    validate(): TBuyerErrors {
+        const customerErrors: TBuyerErrors = {
+            ...this.validateOrder(),
+            ...this.validateContacts()
+        };
         return customerErrors;
     }
 }

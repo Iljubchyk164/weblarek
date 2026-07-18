@@ -33,8 +33,6 @@ export class CartView extends Component<ICartData> {
     }
 
     setList(item: HTMLElement) {
-        /*const listItem = document.createElement("li");
-        listItem.append(item)*/
         this.cartList.append(item);
     }
 

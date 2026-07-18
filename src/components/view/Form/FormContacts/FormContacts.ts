@@ -1,5 +1,6 @@
 import {ensureElement} from "../../../../utils/utils.ts";
 import {FormView, IValidate} from "../FormView.ts";
+import {EventEmitter} from "../../../base/Events.ts";
 
 
 interface IValidateContacts extends IValidate {
@@ -11,19 +12,29 @@ export class FormContacts extends FormView<IValidateContacts> {
 
     private formEmail: HTMLInputElement;
     private formPhone: HTMLInputElement;
+    private submitButton: HTMLButtonElement;
 
+    private event: EventEmitter;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, event: EventEmitter) {
         super(container);
+        this.submitButton = ensureElement<HTMLButtonElement>('.button', this.container);
         this.formEmail = ensureElement<HTMLInputElement>('input[name="email"]', this.container);
         this.formPhone = ensureElement<HTMLInputElement>('input[name="phone"]', this.container);
-    }
+        this.event = event
 
-    getFormData(): Partial<IValidateContacts> {
-        return {
-            email: this.formEmail?.value.trim() || '',
-            phone: this.formPhone?.value.trim() || ''
-        };
+        this.submitButton.addEventListener('click', (e) => {
+            e.preventDefault()
+            this.event.emit('submit');
+        })
+
+        this.formEmail.addEventListener('input', () => {
+            this.event.emit('email:written', {email: this.formEmail.value});
+        })
+
+        this.formPhone.addEventListener('input', () => {
+            this.event.emit('phone:written', {phone: this.formPhone.value});
+        })
     }
 
     setEmail(value: string): void {
@@ -34,7 +45,10 @@ export class FormContacts extends FormView<IValidateContacts> {
         this.formPhone.value = value;
     }
 
-    updateModal(validation: IValidateContacts): void {
-        super.updateModal(validation);
+    updateModal(validation: IValidate): void {
+        super.updateModal({
+            isValid: validation.isValid,
+            errors: validation.errors,
+        });
     }
 }
