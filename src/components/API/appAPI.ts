@@ -2,7 +2,7 @@ import {IApi, IOrder, IOrdersResponse, IProductResponse} from "../../types";
 
 export class appApi {
 
-    api: IApi;
+    private api: IApi;
 
     constructor (api: IApi) {
         this.api = api;

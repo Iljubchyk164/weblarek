@@ -20,19 +20,19 @@ export class FormView<T extends IValidate> extends Component<T> {
         this.formButton = ensureElement<HTMLButtonElement>('.button[type="submit"]', this.container);
         this.formError = ensureElement<HTMLSpanElement>('.form__errors', this.container);
 
-        this.setDisabled(true);
+        this.disabled = true;
     }
 
-    private setDisabled(isValid: boolean) {
+    private set disabled(isValid: boolean) {
         this.formButton.disabled = isValid;
     }
 
-    private setErrors(errors: TBuyerErrors) {
+    private set errors(errors: TBuyerErrors) {
         this.formError.textContent = Object.values(errors).length > 0 ? Object.values(errors).join(', ') : ''
     }
 
     protected updateModal(validation: IValidate): void {
-        this.setDisabled(!validation.isValid);
-        this.setErrors(validation.errors);
+        this.disabled = !validation.isValid;
+        this.errors = validation.errors;
     }
 }

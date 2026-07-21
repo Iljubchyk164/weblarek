@@ -13,11 +13,12 @@ import {Customer} from "./components/Models/customer.ts";
 import {HeaderView} from "./components/view/HeaderView.ts";
 import {SuccessView} from "./components/view/SuccessView.ts";
 import {CartView} from "./components/view/CartView.ts";
-import {CardCart} from "./components/view/Card/CardCart/CardCart.ts";
+/*import {CardCart} from "./components/view/Card/CardCart/CardCart.ts";
 import {CardCatalog} from "./components/view/Card/CardCatalog/CardCatalog.ts";
-import {CardPreview} from "./components/view/Card/CardPreview/CardPreview.ts";
+import {CardPreview} from "./components/view/Card/CardPreview/CardPreview.ts";*/
 import {FormContacts} from "./components/view/Form/FormContacts/FormContacts.ts";
 import {FormOrder} from "./components/view/Form/FormOrder/FormOrder.ts";
+import {CardPreview} from "./components/view/Card/CardPreview/CardPreview.ts";
 
 
 
@@ -26,18 +27,18 @@ const api = new appApi(baseApi)
 
 const event = new EventEmitter()
 
-const productModel = new Product();
-const cartModel = new Cart()
-const customerModel = new Customer();
+const productModel = new Product(event);
+const cartModel = new Cart(event)
+const customerModel = new Customer(event);
 
 const templates = {
-    cardCatalog: document.getElementById('card-catalog') as HTMLTemplateElement,
-    success: document.getElementById('success') as HTMLTemplateElement,
-    cardPreview: document.getElementById('card-preview') as HTMLTemplateElement,
-    cardCart: document.getElementById('card-basket') as HTMLTemplateElement,
-    cart: document.getElementById('basket') as HTMLTemplateElement,
-    order: document.getElementById('order') as HTMLTemplateElement,
-    contacts: document.getElementById('contacts') as HTMLTemplateElement,
+    cardCatalog: ensureElement<HTMLTemplateElement>('#card-catalog'),
+    success: ensureElement<HTMLTemplateElement>('#success'),
+    cardPreview: ensureElement<HTMLTemplateElement>('#card-preview'),
+    cardCart: ensureElement<HTMLTemplateElement>('#card-basket'),
+    cart: ensureElement<HTMLTemplateElement>('#basket'),
+    order: ensureElement<HTMLTemplateElement>('#order'),
+    contacts: ensureElement<HTMLTemplateElement>('#contacts'),
 }
 
 
@@ -54,8 +55,6 @@ const views = {
     header: new HeaderView(containers.header, event),
     success: new SuccessView(cloneTemplate<HTMLElement>(templates.success), event),
     cart: new CartView(cloneTemplate<HTMLElement>(templates.cart), event),
-    cardCart: new CardCart(cloneTemplate<HTMLElement>(templates.cardCart), event),
-    cardCatalog: new CardCatalog(cloneTemplate<HTMLElement>(templates.cardCatalog), event),
     cardPreview: new CardPreview(cloneTemplate<HTMLElement>(templates.cardPreview), event),
     formContacts: new FormContacts(cloneTemplate<HTMLElement>(templates.contacts), event),
     formOrder: new FormOrder(cloneTemplate<HTMLElement>(templates.order), event),

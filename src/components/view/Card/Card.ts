@@ -20,7 +20,7 @@ export abstract class Card<T extends ICardData> extends Component<T> {
         this.cardPrice = ensureElement<HTMLElement>('.card__price', this.container);
     }
 
-    protected setContent(data: T) {
+    protected set content(data: T) {
         this.cardTitle.textContent = data.title;
         this.cardPrice.textContent = data.price ?
             `${data.price} синапсов`

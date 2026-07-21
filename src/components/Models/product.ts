@@ -1,15 +1,20 @@
 import {IProduct} from '../../types' ;
+import {EventEmitter} from "../base/Events.ts";
 
 export class Product {
   private productsArray: IProduct[] = [];
   private currentProduct: IProduct | null = null;
 
+  constructor(private event: EventEmitter) {}
+
   setProducts(products: IProduct[]) {
     this.productsArray = products;
+    this.event.emit('product:updated', this.productsArray);
   }
 
   setCurrentProduct(currentProduct: IProduct | null) {
     this.currentProduct = currentProduct
+    this.event.emit('product:currentProductSelected');
   }
 
   getProductsArray(): IProduct[] {
@@ -25,7 +30,6 @@ export class Product {
       return element.id === id
     });
     if (!result) {
-      console.log('Товар не найден')
       return null
     }
     return result

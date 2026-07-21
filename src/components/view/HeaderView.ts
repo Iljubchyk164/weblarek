@@ -21,11 +21,11 @@ export class HeaderView extends Component<IHeaderData> {
 
 
         this.headerCartButton.addEventListener('click', () => {
-            this.event.emit('cart:open')
+            this.event.emit('header:openCart')
         })
     }
 
-    setCounter(value: number) {
+    set counter(value: number) {
         this.cartCounterText.textContent = String(value);
     }
 }

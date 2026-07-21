@@ -30,7 +30,7 @@ export class ModalView extends Component<IModalData> {
         })
     }
 
-    setContent(content: HTMLElement) {
+    set content(content: HTMLElement) {
         this.modalContentContainer.replaceChildren(content)
 
     }

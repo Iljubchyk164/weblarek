@@ -7,6 +7,8 @@ interface ICardPreviewData extends ICardData {
     category: string;
     image: string;
     description: string;
+    buttonDisabled?: boolean;
+    buttonText?: string;
 }
 
 export class CardPreview extends Card<ICardPreviewData> {
@@ -16,7 +18,6 @@ export class CardPreview extends Card<ICardPreviewData> {
     private cardDescription: HTMLElement;
     private cardButton: HTMLButtonElement;
     private event: EventEmitter;
-    private cardId?: string;
 
     constructor(container: HTMLElement, event: EventEmitter) {
         super(container);
@@ -24,34 +25,25 @@ export class CardPreview extends Card<ICardPreviewData> {
         this.cardImage = ensureElement<HTMLImageElement>('.card__image', this.container);
         this.cardDescription = ensureElement<HTMLElement>('.card__text', this.container);
         this.cardButton = ensureElement<HTMLButtonElement>('.card__button', this.container);
-        this.event = event;
+        this.event = event
 
         this.cardButton.addEventListener('click', () => {
-            this.event.emit('addInCart', {id: this.cardId});
+            this.event.emit('card:actionBtn')
         })
     }
 
-    setContent(data: ICardPreviewData) {
-        super.setContent(data);
+    set content(data: ICardPreviewData) {
+        super.content = data;
         this.cardCategory.textContent = data.category;
         this.cardDescription.textContent = data.description;
         this.setImage(this.cardImage, `${CDN_URL}${data.image}`, data.title);
-        this.cardId = data.id;
     }
 
-    disabledButton(bool: boolean) {
+    set buttonDisabled(bool: boolean) {
         this.cardButton.disabled = bool;
-        if (bool) {
-            this.cardButton.textContent = 'Недоступно';
-        }
     }
 
-    haveInCart(bool: boolean) {
-        if (bool) {
-            this.cardButton.textContent = 'Удалить из корзины';
-        } else {
-            this.cardButton.textContent = 'В корзину'
-        }
-
+    set buttonText(text: string) {
+        this.cardButton.textContent = text;
     }
 }

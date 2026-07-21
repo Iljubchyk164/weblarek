@@ -1,7 +1,10 @@
 import {IProduct} from '../../types' ;
+import {EventEmitter} from "../base/Events.ts";
 
 export class Cart {
   private cartProductsArray = new Map<string, IProduct>();
+
+  constructor(private event: EventEmitter) {}
 
   getCartProductsArray(): IProduct[] {
     return Array.from(this.cartProductsArray.values())
@@ -11,14 +14,17 @@ export class Cart {
     if (product) {
       this.cartProductsArray.set(product.id, product)
     }
+    this.event.emit('cart:updated')
   }
 
   deleteProductFromCart(id: string) {
     this.cartProductsArray.delete(id)
+    this.event.emit('cart:updated')
   }
 
   resetCart() {
     this.cartProductsArray.clear();
+    this.event.emit('cart:updated')
   }
 
   getCartPrices(): number {

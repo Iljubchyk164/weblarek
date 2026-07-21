@@ -3,7 +3,7 @@ import {ensureElement} from "../../utils/utils.ts";
 import {EventEmitter} from "../base/Events.ts";
 
 interface ISuccessData {
-    price: number;
+    price: number
 }
 
 export class SuccessView extends Component<ISuccessData> {
@@ -23,7 +23,7 @@ export class SuccessView extends Component<ISuccessData> {
         })
     }
 
-    setContent(value: number) {
+    set price(value: number) {
         this.priceDescription.textContent = `Списано ${value} синапсов`
     }
 }

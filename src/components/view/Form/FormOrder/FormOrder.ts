@@ -36,24 +36,21 @@ export class FormOrder extends FormView<IValidateOrder> {
 
         this.orderButton.addEventListener('click', (e) => {
             e.preventDefault()
-            this.event.emit('nextOrderModal')
+            this.event.emit('form:openNextForm')
         })
     }
 
-    setAddress(address: string): void {
+    set address(address: string) {
         this.formAddress.value = address;
     }
 
-    setPayment(method: TPayment): void {
+    set payment(method: TPayment) {
         this.paymentButtons.querySelectorAll('button').forEach(button => {
             button.classList.toggle('button_alt-active', button.name === method);
         });
     }
 
     updateModal(validation: IValidate): void {
-        super.updateModal({
-            isValid: validation.isValid,
-            errors: validation.errors,
-        });
+        super.updateModal(validation);
     }
 }

@@ -4,6 +4,8 @@ import {EventEmitter} from "../base/Events.ts";
 
 interface ICartData {
     price: number;
+    list: HTMLElement[];
+    buttonDisabled: boolean;
 }
 
 export class CartView extends Component<ICartData> {
@@ -22,21 +24,21 @@ export class CartView extends Component<ICartData> {
         this.event = event;
 
         this.cartButton.addEventListener('click', () => {
-            this.event.emit('order')
+            this.event.emit('cart:openForm')
         })
 
-        this.disabledButton(true)
+        this.buttonDisabled = true
     }
 
-    setPrice(value: number) {
+    set price(value: number) {
         this.cartPrice.textContent = `${value} синапсов`
     }
 
-    setList(item: HTMLElement) {
-        this.cartList.append(item);
+    set list(item: HTMLElement[]) {
+        this.cartList.replaceChildren(...item);
     }
 
-    disabledButton(bool: boolean) {
+    set buttonDisabled(bool: boolean) {
         this.cartButton.disabled = bool
     }
 }

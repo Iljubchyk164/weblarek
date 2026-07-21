@@ -31,11 +31,11 @@ interface IPresenterConfig {
         header: HeaderView;
         success: SuccessView;
         cart: CartView;
-        cardCatalog: CardCatalog;
         cardPreview: CardPreview;
-        cardCart: CardCart;
-        formContacts: FormContacts | null;
-        formOrder: FormOrder | null;
+        /*cardCatalog: CardCatalog;
+        cardCart: CardCart;*/
+        formContacts: FormContacts;
+        formOrder: FormOrder;
     };
     templates: {
         cardCatalog: HTMLTemplateElement;
@@ -60,16 +60,15 @@ export class Presenter {
     constructor(config: IPresenterConfig)
     {
         this.config = config
-        this.config.views.formOrder = null;
-        this.config.views.formContacts = null;
+        /*this.config.views.formOrder = null;
+        this.config.views.formContacts = null;*/
     }
 
 
     async init(): Promise<void> {
         try {
-            await this.loadProducts();
-            this.renderProducts(this.config.models.product.getProductsArray());
             this.setupEventListeners()
+            await this.loadProducts();
         } catch (error) {
             console.error(error);
         }
@@ -86,19 +85,29 @@ export class Presenter {
     }
 
 
-    renderProducts(products: IProduct[]): void {
-        if (products.length === 0) {
-            return;
-        }
-
-        const cardElements = products.map(product => this.createCard(product));
-        this.config.views.gallery.setCatalog(cardElements);
-    }
-
-
     private setupEventListeners(): void {
 
-        this.config.event.on('nextOrderModal', () => {
+        //models
+
+        this.config.event.on('cart:updated', () => {
+            this.cartUpdate();
+        });
+
+        this.config.event.on('customer:updated', () => {
+            this.customerUpdate();
+        });
+
+        this.config.event.on('product:updated', () => {
+            this.renderProducts();
+        });
+
+        this.config.event.on('product:currentProductSelected', () => {
+            this.currentProductSelected();
+        });
+
+        //views
+
+        this.config.event.on('form:openNextForm', () => {
             this.secondOrderModal();
         });
 
@@ -118,15 +127,15 @@ export class Presenter {
             this.phoneWrite(data.phone);
         });
 
-        this.config.event.on('order', () => {
+        this.config.event.on('cart:openForm', () => {
             this.firstOrderModal();
         });
 
-        this.config.event.on('deleteFromCart', (data: { id: string }) => {
+        this.config.event.on('card:deleted', (data: { id: string }) => {
             this.deleteFromCart(data.id);
         });
 
-        this.config.event.on('cart:open', () => {
+        this.config.event.on('header:openCart', () => {
             this.cartOpen();
         });
 
@@ -135,72 +144,157 @@ export class Presenter {
             this.modalClose();
         });
 
-        this.config.event.on('card:select', (data: { id: string }) => {
+        this.config.event.on('card:selected', (data: { id: string }) => {
             this.onCardClick(data.id);
         });
 
-        this.config.event.on('addInCart', (data: { id: string }) => {
-            this.addInCart(data.id);
+        this.config.event.on('card:actionBtn', () => {
+            this.changeCart();
         });
 
-        this.config.event.on('submit', () => {
+        this.config.event.on('form:submit', () => {
             this.submit();
         });
 
     }
 
-
-    private createCard(product: IProduct): HTMLElement {
-        const cardElement = cloneTemplate<HTMLElement>(this.config.templates.cardCatalog)
-        const card = new CardCatalog(cardElement, this.config.event);
-        card.setContent({
-            title: product.title,
-            price: product.price,
-            category: product.category,
-            image: product.image,
-            id: product.id
-        });
-
-        return cardElement;
+    private getButtonText(product: IProduct, inCart: boolean) {
+        if (inCart) {
+            return 'Удалить из корзины';
+        } else if (product.price === null) {
+            return 'Недоступно'
+        } else {
+            return 'В корзину'
+        }
     }
 
-    private onCardClick(id: string): void {
-        const product = this.config.models.product.getProductById(id);
-        const cardElement = cloneTemplate<HTMLElement>(this.config.templates.cardPreview)
-        const card = new CardPreview(cardElement, this.config.event);
+    //models
+
+    private renderProducts(): void {
+        const products = this.config.models.product.getProductsArray();
+        if (products.length === 0) {
+            return;
+        }
+        this.config.views.gallery.catalog = products.map(product => this.createCard(product));
+    }
+
+    private currentProductSelected() {
+        const product = this.config.models.product.getCurrentProduct();
         if (product) {
-            card.setContent({
+            const card = this.config.views.cardPreview;
+            card.content = {
                 title: product.title,
                 price: product.price,
                 id: product.id,
                 category: product.category,
                 image: product.image,
                 description: product.description,
-            })
-            this.config.views.modal.setContent(cardElement)
-            card.haveInCart(this.config.models.cart.productInCart(id))
-            if (product.price === undefined || product.price === null) {
-                card.disabledButton(true)
             }
+            const inCart = this.config.models.cart.productInCart(product.id)
+            this.config.views.modal.render({content: card.render({ buttonDisabled: product.price === null, buttonText: this.getButtonText(product, inCart)})})
             this.config.views.modal.openModal();
-
-        } }
-
-    private addInCart(id: string): void {
-        if (this.config.models.cart.productInCart(id)) {
-            this.deleteFromCart(id);
-            this.modalClose();
-            return
         }
-        const product = this.config.models.product.getProductById(id);
+    }
+
+    private cartUpdate() {
+        function isDefined<T>(value: T | undefined): value is T {
+            return value !== undefined;
+        }
         const cart = this.config.models.cart;
-        cart.pushProductInCart(product);
+        const cartView = this.config.views.cart;
+        const products = cart.getCartProductsArray().map((product, index) => {
+            const card = new CardCart(cloneTemplate<HTMLElement>(this.config.templates.cardCart), () => this.config.event.emit('card:deleted', {id: product.id}));
+            if (product) {
+                card.content = {
+                    title: product.title,
+                    price: product.price,
+                    id: product.id,
+                    index: index + 1,
+                }
+                return card.render()
+            }
+        })
+        if (products.length === 0) {
+            this.config.views.modal.render({content: cartView.render({list: products as HTMLElement[], price: cart.getCartPrices(), buttonDisabled: products.length === 0})})
+        }
+        if (products.every(isDefined) && products.length > 0) {
+            this.config.views.modal.render({content: cartView.render({list: products, price: cart.getCartPrices(), buttonDisabled: products.length === 0})})
+        }
         this.updateHeader()
-        this.modalClose()
+    }
+
+    private customerUpdate() {
+        const formOrder = this.config.views.formOrder
+        const formContacts = this.config.views.formContacts
+        const customer = this.config.models.customer
+
+        const errors = customer.validate()
+        const orderErrors = {
+            payment: errors.payment,
+            address: errors.address,
+        }
+        const contactsErrors = {
+            email: errors.email,
+            phone: errors.phone,
+        }
+
+        const filterOrderErrors = Object.fromEntries(
+            Object.entries(orderErrors).filter(([_, value]) => value && value.trim() !== '')
+        )
+        const filterContactsErrors = Object.fromEntries(
+            Object.entries(contactsErrors).filter(([_, value]) => value && value.trim() !== '')
+        )
+        formOrder.updateModal(
+            {
+                isValid: Object.keys(filterOrderErrors).length === 0,
+                errors: filterOrderErrors,
+            }
+        )
+
+        formContacts.updateModal(
+            {
+                isValid: Object.keys(filterContactsErrors).length === 0,
+                errors: filterContactsErrors,
+            }
+        )
+        formOrder.render({payment: customer.getCustomer().payment, address: customer.getCustomer().address})
+        formContacts.render({email: customer.getCustomer().email, phone: customer.getCustomer().phone})
+    }
+
+    //views
+
+    private createCard(product: IProduct): HTMLElement {
+        const cardElement = cloneTemplate<HTMLElement>(this.config.templates.cardCatalog)
+        const card = new CardCatalog(cardElement, () => this.config.event.emit('card:selected', {id: product.id}));
+        card.content = {
+            title: product.title,
+            price: product.price,
+            category: product.category,
+            image: product.image,
+            id: product.id
+        };
+        return card.render()
+    }
+
+    private onCardClick(id: string): void {
+        this.config.models.product.setCurrentProduct(this.config.models.product.getProductById(id));
+    }
+
+    private changeCart(): void {
+        const product = this.config.models.product.getCurrentProduct();
+        if (product) {
+            if (this.config.models.cart.productInCart(product.id)) {
+                this.deleteFromCart(product.id);
+                this.modalClose();
+                return
+            }
+            this.config.models.cart.pushProductInCart(product);
+            this.modalClose()
+        }
     }
 
     private updateHeader(): void {
-        this.config.views.header.setCounter(this.config.models.cart.getCartSize())
+        this.config.views.header.counter = this.config.models.cart.getCartSize()
     }
 
     private modalClose(): void {
@@ -208,124 +302,41 @@ export class Presenter {
     }
 
     private cartOpen(): void {
-        const cart = this.config.models.cart;
-        const cartElement = cloneTemplate<HTMLElement>(this.config.templates.cart)
-        const cartView = new CartView(cartElement, this.config.event);
-        if (cart.getCartProductsArray().length === 0) {
-            cartView.disabledButton(true)
-            this.config.views.modal.setContent(cartElement)
-            this.config.views.modal.openModal();
-            return;
-        }
-        cart.getCartProductsArray().forEach((product, index) => {
-            const cardElement = cloneTemplate<HTMLElement>(this.config.templates.cardCart)
-            const card = new CardCart(cardElement, this.config.event);
-            if (product) {
-                card.setContent({
-                    title: product.title,
-                    price: product.price,
-                    id: product.id,
-                    index: index + 1,
-                })
-            }
-            cartView.setList(cardElement);
-            cartView.setPrice(cart.getCartPrices())
-            cartView.disabledButton(false)
-            this.config.views.modal.setContent(cartElement)
-            this.config.views.modal.openModal();
-        })
-
+        const cartView = this.config.views.cart;
+        this.config.views.modal.render({content: cartView.render()})
+        this.config.views.modal.openModal();
     }
 
     private deleteFromCart(id: string) {
         this.config.models.cart.deleteProductFromCart(id)
-        this.cartOpen()
-        this.updateHeader()
     }
 
     private firstOrderModal(): void {
-        if (!this.config.views.formOrder) {
-            const orderElement = cloneTemplate<HTMLElement>(this.config.templates.order)
-            this.config.views.formOrder = new FormOrder(orderElement, this.config.event);
-            this.config.views.modal.setContent(orderElement)
-        } else {
-            this.config.views.modal.setContent(this.config.views.formOrder.render())
-        }
-
-        const customer = this.config.models.customer
-
-        if(customer.getCustomer().payment) {
-            this.config.views.formOrder.setPayment(customer.getCustomer().payment)
-        }
-
-        if(customer.getCustomer().address) {
-            this.config.views.formOrder.setAddress(customer.getCustomer().address)
-        }
-
-        const errors = customer.validateOrder()
-        const filterErrors = Object.fromEntries(
-            Object.entries(errors).filter(([_, value]) => value && value.trim() !== '')
-        )
-        this.config.views.formOrder.updateModal(
-            {
-                isValid: Object.keys(errors).length === 0,
-                errors: filterErrors,
-            }
-        )
-
+        this.customerUpdate()
+        const form = this.config.views.formOrder
+        this.config.views.modal.render({content: form.render()})
     }
 
     private paymentSelected(method: TPayment) {
         this.config.models.customer.setPayment(method);
-        this.firstOrderModal();
     }
 
     private addressWrite(address: string): void {
         this.config.models.customer.setAddress(address);
-        this.firstOrderModal();
     }
 
     private secondOrderModal(): void {
-        if (!this.config.views.formContacts) {
-            const contactsElement = cloneTemplate<HTMLElement>(this.config.templates.contacts)
-            this.config.views.formContacts = new FormContacts(contactsElement, this.config.event);
-            this.config.views.modal.setContent(contactsElement)
-        } else {
-            this.config.views.modal.setContent(this.config.views.formContacts.render())
-        }
-
-
-        const customer = this.config.models.customer
-
-        if(customer.getCustomer().email) {
-            this.config.views.formContacts.setEmail(customer.getCustomer().email)
-        }
-
-        if(customer.getCustomer().phone) {
-            this.config.views.formContacts.setPhone(customer.getCustomer().phone)
-        }
-
-        const errors = customer.validateContacts()
-        const filterErrors = Object.fromEntries(
-            Object.entries(errors).filter(([_, value]) => value && value.trim() !== '')
-        )
-        this.config.views.formContacts.updateModal(
-            {
-                isValid: Object.keys(errors).length === 0,
-                errors: filterErrors,
-            }
-        )
-
+        this.customerUpdate()
+        const form = this.config.views.formContacts
+        this.config.views.modal.render({content: form.render()})
     }
 
     private emailWrite(email: string) {
         this.config.models.customer.setEmail(email);
-        this.secondOrderModal()
     }
 
     private phoneWrite(phone: string): void {
         this.config.models.customer.setPhone(phone);
-        this.secondOrderModal()
     }
 
     private async submit(): Promise<void>  {
@@ -336,11 +347,9 @@ export class Presenter {
         }
         try {
             const postData = await this.config.api.postOrder(order)
-            const successElement = cloneTemplate<HTMLElement>(this.config.templates.success)
-            const success = new SuccessView(successElement, this.config.event);
-            success.setContent(postData.total)
-            this.config.views.modal.setContent(successElement)
+            const success = this.config.views.success
             this.reset()
+            this.config.views.modal.render({content: success.render({price: postData.total})})
         } catch (e) {
             console.log(e)
         }
@@ -349,10 +358,9 @@ export class Presenter {
     private reset(): void {
         this.config.models.customer.clearCustomer()
         this.config.models.cart.resetCart()
-        this.config.views.formOrder?.setAddress('')
-        this.config.views.formOrder?.setPayment('')
-        this.config.views.formContacts?.setPhone('')
-        this.config.views.formContacts?.setEmail('')
-        this.updateHeader()
+        this.config.views.formOrder.address = ''
+        this.config.views.formOrder.payment = ''
+        this.config.views.formContacts.phone = ''
+        this.config.views.formContacts.email = ''
     }
 }

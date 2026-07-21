@@ -25,7 +25,7 @@ export class FormContacts extends FormView<IValidateContacts> {
 
         this.submitButton.addEventListener('click', (e) => {
             e.preventDefault()
-            this.event.emit('submit');
+            this.event.emit('form:submit');
         })
 
         this.formEmail.addEventListener('input', () => {
@@ -37,18 +37,15 @@ export class FormContacts extends FormView<IValidateContacts> {
         })
     }
 
-    setEmail(value: string): void {
-        this.formEmail.value = value;
+    set email(email: string) {
+        this.formEmail.value = email;
     }
 
-    setPhone(value: string): void {
-        this.formPhone.value = value;
+    set phone(phone: string) {
+        this.formPhone.value = phone;
     }
 
     updateModal(validation: IValidate): void {
-        super.updateModal({
-            isValid: validation.isValid,
-            errors: validation.errors,
-        });
+        super.updateModal(validation);
     }
 }
