@@ -28,7 +28,7 @@ export class CardPreview extends Card<ICardPreviewData> {
         this.event = event
 
         this.cardButton.addEventListener('click', () => {
-            this.event.emit('card:actionBtn')
+            this.event.emit('card:action')
         })
     }
 

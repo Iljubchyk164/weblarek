@@ -75,7 +75,7 @@ export class Presenter {
     }
 
 
-    async loadProducts(): Promise<void> {
+    private async loadProducts(): Promise<void> {
         try {
             const data: IProductResponse = await this.config.api.getProduct();
             this.config.models.product.setProducts(data.items);
@@ -148,7 +148,7 @@ export class Presenter {
             this.onCardClick(data.id);
         });
 
-        this.config.event.on('card:actionBtn', () => {
+        this.config.event.on('card:action', () => {
             this.changeCart();
         });
 
