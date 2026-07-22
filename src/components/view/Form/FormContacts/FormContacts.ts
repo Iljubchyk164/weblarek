@@ -44,8 +44,4 @@ export class FormContacts extends FormView<IValidateContacts> {
     set phone(phone: string) {
         this.formPhone.value = phone;
     }
-
-    updateModal(validation: IValidate): void {
-        super.updateModal(validation);
-    }
 }

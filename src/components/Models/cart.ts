@@ -10,10 +10,8 @@ export class Cart {
     return Array.from(this.cartProductsArray.values())
   }
 
-  pushProductInCart(product: IProduct | null) {
-    if (product) {
-      this.cartProductsArray.set(product.id, product)
-    }
+  pushProductInCart(product: IProduct) {
+    this.cartProductsArray.set(product.id, product)
     this.event.emit('cart:updated')
   }
 

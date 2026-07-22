@@ -1,5 +1,5 @@
 import './scss/styles.scss';
-import {appApi} from "./components/API/appAPI.ts";
+import {AppApi} from "./components/API/AppApi.ts";
 import {API_URL} from "./utils/constants.ts";
 import {Api} from "./components/base/Api.ts";
 import {GalleryView} from "./components/view/GalleryView.ts";
@@ -13,9 +13,6 @@ import {Customer} from "./components/Models/customer.ts";
 import {HeaderView} from "./components/view/HeaderView.ts";
 import {SuccessView} from "./components/view/SuccessView.ts";
 import {CartView} from "./components/view/CartView.ts";
-/*import {CardCart} from "./components/view/Card/CardCart/CardCart.ts";
-import {CardCatalog} from "./components/view/Card/CardCatalog/CardCatalog.ts";
-import {CardPreview} from "./components/view/Card/CardPreview/CardPreview.ts";*/
 import {FormContacts} from "./components/view/Form/FormContacts/FormContacts.ts";
 import {FormOrder} from "./components/view/Form/FormOrder/FormOrder.ts";
 import {CardPreview} from "./components/view/Card/CardPreview/CardPreview.ts";
@@ -23,7 +20,7 @@ import {CardPreview} from "./components/view/Card/CardPreview/CardPreview.ts";
 
 
 const baseApi = new Api(API_URL)
-const api = new appApi(baseApi)
+const api = new AppApi(baseApi)
 
 const event = new EventEmitter()
 

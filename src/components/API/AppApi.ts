@@ -1,6 +1,6 @@
 import {IApi, IOrder, IOrdersResponse, IProductResponse} from "../../types";
 
-export class appApi {
+export class AppApi {
 
     private api: IApi;
 

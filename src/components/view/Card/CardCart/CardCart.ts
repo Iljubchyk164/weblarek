@@ -19,8 +19,8 @@ export class CardCart extends Card<ICardCartData> {
             cb()
     })
     }
-    set content(data: ICardCartData) {
-        super.content = data;
-        this.cardIndex.textContent = String(data.index);
+
+    set index(value: number) {
+        this.cardIndex.textContent = String(value);
     }
 }

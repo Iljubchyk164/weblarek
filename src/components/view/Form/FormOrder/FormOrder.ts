@@ -1,4 +1,4 @@
-import {ensureElement} from "../../../../utils/utils.ts";
+import {ensureAllElements, ensureElement} from "../../../../utils/utils.ts";
 import {FormView, IValidate} from "../FormView.ts";
 import {TPayment} from "../../../../types";
 import {EventEmitter} from "../../../base/Events.ts";
@@ -12,23 +12,23 @@ interface IValidateOrder extends IValidate {
 export class FormOrder extends FormView<IValidateOrder> {
 
     private formAddress: HTMLInputElement;
-    private paymentButtons: HTMLElement;
+    private paymentButtonsList: HTMLButtonElement[];
     private orderButton: HTMLButtonElement;
     private event: EventEmitter;
 
     constructor(container: HTMLElement, event: EventEmitter) {
         super(container);
-        this.paymentButtons = ensureElement<HTMLElement>('.order__buttons', this.container);
+        this.paymentButtonsList = ensureAllElements<HTMLButtonElement>('.order__buttons button', this.container);
         this.formAddress = ensureElement<HTMLInputElement>('.form__input', this.container);
         this.orderButton = ensureElement<HTMLButtonElement>('.order__button', this.container);
         this.event = event
 
-        this.paymentButtons.addEventListener('click', (event) => {
+        this.paymentButtonsList.forEach(button => button.addEventListener('click', (event) => {
             const target = event.target as HTMLButtonElement;
             if (target.tagName === 'BUTTON' && target.name) {
                 this.event.emit('payment:selected', { method: target.name as TPayment});
             }
-        })
+        }))
 
         this.formAddress.addEventListener('input', () => {
             this.event.emit('address:written', {address: this.formAddress.value});
@@ -45,12 +45,8 @@ export class FormOrder extends FormView<IValidateOrder> {
     }
 
     set payment(method: TPayment) {
-        this.paymentButtons.querySelectorAll('button').forEach(button => {
+        this.paymentButtonsList.forEach(button => {
             button.classList.toggle('button_alt-active', button.name === method);
         });
-    }
-
-    updateModal(validation: IValidate): void {
-        super.updateModal(validation);
     }
 }

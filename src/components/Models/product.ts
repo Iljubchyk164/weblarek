@@ -9,7 +9,7 @@ export class Product {
 
   setProducts(products: IProduct[]) {
     this.productsArray = products;
-    this.event.emit('product:updated', this.productsArray);
+    this.event.emit('product:updated');
   }
 
   setCurrentProduct(currentProduct: IProduct | null) {

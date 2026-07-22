@@ -4,7 +4,6 @@ import {ensureElement} from "../../../utils/utils.ts";
 export interface ICardData {
     title: string;
     price: number | null;
-    id: string;
 }
 
 export abstract class Card<T extends ICardData> extends Component<T> {
@@ -20,10 +19,13 @@ export abstract class Card<T extends ICardData> extends Component<T> {
         this.cardPrice = ensureElement<HTMLElement>('.card__price', this.container);
     }
 
-    protected set content(data: T) {
-        this.cardTitle.textContent = data.title;
-        this.cardPrice.textContent = data.price ?
-            `${data.price} синапсов`
+    protected set title(value: string) {
+        this.cardTitle.textContent = value;
+    }
+
+    protected set price(value: number | null) {
+        this.cardPrice.textContent = value !== null ?
+            `${value} синапсов`
             : `Бесценно`
     }
 }

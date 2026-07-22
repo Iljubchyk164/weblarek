@@ -1,5 +1,5 @@
 import {IProduct, IProductResponse, TPayment} from "../../types";
-import {appApi} from "../API/appAPI.ts";
+import {AppApi} from "../API/AppApi.ts";
 import {Product} from "../Models/product.ts";
 import {GalleryView} from "../view/GalleryView.ts";
 import {CardCatalog} from "../view/Card/CardCatalog/CardCatalog.ts";
@@ -15,10 +15,11 @@ import {Customer} from "../Models/customer.ts";
 import {CardCart} from "../view/Card/CardCart/CardCart.ts";
 import {FormContacts} from "../view/Form/FormContacts/FormContacts.ts";
 import {FormOrder} from "../view/Form/FormOrder/FormOrder.ts";
+import {CDN_URL} from "../../utils/constants.ts";
 
 
 interface IPresenterConfig {
-    api: appApi;
+    api: AppApi;
     event: EventEmitter;
     models: {
         product: Product;
@@ -32,8 +33,6 @@ interface IPresenterConfig {
         success: SuccessView;
         cart: CartView;
         cardPreview: CardPreview;
-        /*cardCatalog: CardCatalog;
-        cardCart: CardCart;*/
         formContacts: FormContacts;
         formOrder: FormOrder;
     };
@@ -60,8 +59,6 @@ export class Presenter {
     constructor(config: IPresenterConfig)
     {
         this.config = config
-        /*this.config.views.formOrder = null;
-        this.config.views.formContacts = null;*/
     }
 
 
@@ -182,45 +179,30 @@ export class Presenter {
         const product = this.config.models.product.getCurrentProduct();
         if (product) {
             const card = this.config.views.cardPreview;
-            card.content = {
+            const inCart = this.config.models.cart.productInCart(product.id)
+            const content = card.render({
                 title: product.title,
                 price: product.price,
-                id: product.id,
                 category: product.category,
-                image: product.image,
+                image: CDN_URL + product.image,
                 description: product.description,
-            }
-            const inCart = this.config.models.cart.productInCart(product.id)
-            this.config.views.modal.render({content: card.render({ buttonDisabled: product.price === null, buttonText: this.getButtonText(product, inCart)})})
+                buttonDisabled: product.price === null,
+                buttonText: this.getButtonText(product, inCart)
+            })
+            this.config.views.modal.render({content})
             this.config.views.modal.openModal();
         }
     }
 
     private cartUpdate() {
-        function isDefined<T>(value: T | undefined): value is T {
-            return value !== undefined;
-        }
         const cart = this.config.models.cart;
         const cartView = this.config.views.cart;
         const products = cart.getCartProductsArray().map((product, index) => {
-            const card = new CardCart(cloneTemplate<HTMLElement>(this.config.templates.cardCart), () => this.config.event.emit('card:deleted', {id: product.id}));
-            if (product) {
-                card.content = {
-                    title: product.title,
-                    price: product.price,
-                    id: product.id,
-                    index: index + 1,
-                }
-                return card.render()
-            }
-        })
-        if (products.length === 0) {
-            this.config.views.modal.render({content: cartView.render({list: products as HTMLElement[], price: cart.getCartPrices(), buttonDisabled: products.length === 0})})
-        }
-        if (products.every(isDefined) && products.length > 0) {
-            this.config.views.modal.render({content: cartView.render({list: products, price: cart.getCartPrices(), buttonDisabled: products.length === 0})})
-        }
-        this.updateHeader()
+            const card = new CardCart(cloneTemplate<HTMLElement>(this.config.templates.cardCart), () => this.config.event.emit('card:deleted', { id: product.id }));
+            return card.render({ title: product.title, price: product.price, index: index + 1 });
+        });
+        cartView.render({ list: products, price: cart.getCartPrices(), buttonDisabled: products.length === 0 });
+        this.updateHeader();
     }
 
     private customerUpdate() {
@@ -244,21 +226,17 @@ export class Presenter {
         const filterContactsErrors = Object.fromEntries(
             Object.entries(contactsErrors).filter(([_, value]) => value && value.trim() !== '')
         )
-        formOrder.updateModal(
-            {
-                isValid: Object.keys(filterOrderErrors).length === 0,
-                errors: filterOrderErrors,
-            }
-        )
 
-        formContacts.updateModal(
-            {
-                isValid: Object.keys(filterContactsErrors).length === 0,
-                errors: filterContactsErrors,
-            }
-        )
-        formOrder.render({payment: customer.getCustomer().payment, address: customer.getCustomer().address})
-        formContacts.render({email: customer.getCustomer().email, phone: customer.getCustomer().phone})
+        formOrder.render({
+            valid: Object.keys(filterOrderErrors).length === 0,
+            errors: filterOrderErrors,
+            payment: customer.getCustomer().payment,
+            address: customer.getCustomer().address})
+        formContacts.render({
+            valid: Object.keys(filterContactsErrors).length === 0,
+            errors: filterContactsErrors,
+            email: customer.getCustomer().email,
+            phone: customer.getCustomer().phone})
     }
 
     //views
@@ -266,14 +244,13 @@ export class Presenter {
     private createCard(product: IProduct): HTMLElement {
         const cardElement = cloneTemplate<HTMLElement>(this.config.templates.cardCatalog)
         const card = new CardCatalog(cardElement, () => this.config.event.emit('card:selected', {id: product.id}));
-        card.content = {
+        return card.render({
             title: product.title,
             price: product.price,
             category: product.category,
-            image: product.image,
-            id: product.id
-        };
-        return card.render()
+            image: CDN_URL + product.image,
+        }) ;
+
     }
 
     private onCardClick(id: string): void {
@@ -348,8 +325,8 @@ export class Presenter {
         try {
             const postData = await this.config.api.postOrder(order)
             const success = this.config.views.success
-            this.reset()
             this.config.views.modal.render({content: success.render({price: postData.total})})
+            this.reset()
         } catch (e) {
             console.log(e)
         }
@@ -358,9 +335,5 @@ export class Presenter {
     private reset(): void {
         this.config.models.customer.clearCustomer()
         this.config.models.cart.resetCart()
-        this.config.views.formOrder.address = ''
-        this.config.views.formOrder.payment = ''
-        this.config.views.formContacts.phone = ''
-        this.config.views.formContacts.email = ''
     }
 }

@@ -1,6 +1,6 @@
 import {ensureElement} from "../../../../utils/utils.ts";
 import {Card, ICardData} from "../Card.ts";
-import {categoryMap, CDN_URL} from "../../../../utils/constants.ts";
+import {categoryMap} from "../../../../utils/constants.ts";
 
 interface ICardCatalogData extends ICardData {
     category: string;
@@ -25,9 +25,8 @@ export class CardCatalog extends Card<ICardCatalogData> {
         })
     }
 
-    set content(data: ICardCatalogData) {
-        super.content = data;
-        this.cardCategory.textContent = data.category;
+    set category(value: string) {
+        this.cardCategory.textContent = value;
         this.cardCategory.classList.remove(
             'card__category_soft',
             'card__category_hard',
@@ -35,10 +34,13 @@ export class CardCatalog extends Card<ICardCatalogData> {
             'card__category_additional',
             'card__category_other'
         );
-        const categoryClass = categoryMap[data.category as keyof typeof categoryMap];
+        const categoryClass = categoryMap[value as keyof typeof categoryMap];
         if (categoryClass) {
             this.cardCategory.classList.add(categoryClass);
         }
-        this.setImage(this.cardImage, `${CDN_URL}${data.image}`, data.title);
+    }
+
+    set image(value: string) {
+        this.setImage(this.cardImage, value);
     }
 }

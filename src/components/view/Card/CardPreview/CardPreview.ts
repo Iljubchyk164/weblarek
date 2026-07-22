@@ -1,6 +1,5 @@
 import {ensureElement} from "../../../../utils/utils.ts";
 import {Card, ICardData} from "../Card.ts";
-import {CDN_URL} from "../../../../utils/constants.ts";
 import {EventEmitter} from "../../../base/Events.ts";
 
 interface ICardPreviewData extends ICardData {
@@ -32,11 +31,16 @@ export class CardPreview extends Card<ICardPreviewData> {
         })
     }
 
-    set content(data: ICardPreviewData) {
-        super.content = data;
-        this.cardCategory.textContent = data.category;
-        this.cardDescription.textContent = data.description;
-        this.setImage(this.cardImage, `${CDN_URL}${data.image}`, data.title);
+    set category(value: string) {
+        this.cardCategory.textContent = value;
+    }
+
+    set image(value: string) {
+        this.setImage(this.cardImage, value);
+    }
+
+    set description(value: string) {
+        this.cardDescription.textContent = value;
     }
 
     set buttonDisabled(bool: boolean) {
